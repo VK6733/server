@@ -1,5 +1,16 @@
 import express from "express";
 import mongoose from "mongoose";
+import bodyParser from "body-parser";
+import cors from "cors";
+
+import {
+    getUserProfileController,
+    getAllUserController, 
+    createUserController,
+    updateUserController,
+    deleteUserController,
+    LoginController
+} from "./controller";
 
 class Server {
     constructor(configuration) {
@@ -9,9 +20,26 @@ class Server {
     }
 
     route() {
+
+        this.app.use(bodyParser())
+
+        this.app.use(cors())
+
         this.app.use("/health-check", (req, res) => {
             res.send("Server is running..!");
         });
+        // HTTP METHODS
+        this.app.get("/users", getAllUserController);
+
+        this.app.post("/add-user", createUserController);
+
+        this.app.patch("/edit-user/:id", updateUserController);
+
+        this.app.delete("/deactivate/:id", deleteUserController);
+
+        this.app.get("/profile/:id", getUserProfileController);
+        
+        this.app.post("/Login",LoginController);
     }
 
     async connectDB() {
@@ -27,6 +55,7 @@ class Server {
         const { app, configuration: { port } } = this;
         const message = `| App is running on ${port} |`;
         const len = message.length;
+       
         try {
             this.connectDB()
             app.listen(port, err => {
